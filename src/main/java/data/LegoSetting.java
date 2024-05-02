@@ -22,7 +22,7 @@ public class LegoSetting {
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private int id;
 	private double speed;
-	private int action; 
+	private String action; 
 	private java.sql.Timestamp time = new java.sql.Timestamp(Calendar.getInstance().getTimeInMillis());
 	private double proportional;
 	private double integral;
@@ -36,7 +36,7 @@ public class LegoSetting {
 		super();
 	}
 
-	public LegoSetting(int id, double speed, int action, Timestamp time, double proportional, double integral, double derivative) {
+	public LegoSetting(int id, double speed, String action, Timestamp time, double proportional, double integral, double derivative) {
 		super();
 		this.id = id;
 		this.speed = speed;
@@ -63,11 +63,11 @@ public class LegoSetting {
 		this.speed = speed;
 	}
 
-	public int getAction() {
+	public String getAction() {
 		return action;
 	}
 
-	public void setAction(int action) {
+	public void setAction(String action) {
 		this.action = action;
 	}
 
