@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+<head>
+  <meta http-equiv="content-type" content="application/xhtml+xml; charset=UTF-8" />
+  <title>Hello App Engine</title>
+</head>
+
+<body onload='readLego();'>
+<script>
+function readLego(){
+  fetch('/rest/lego/getlego')
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+      return response.json();
+    })
+    .then(data => {
+      // 渲染 Lego 数据
+      document.getElementById("lego").innerHTML = "Id=" + data.id + "<br>Name=" + data.name;
+      document.getElementById("legoid").value = data.id;
+
+      // 渲染 LegoSetting 数据
+      var legoSettingHTML = "";
+      if (data.legoSetting && data.legoSetting.length > 0) { // 检查数据是否存在
+        data.legoSetting.forEach((setting, index) => {
+          legoSettingHTML += "Setting " + (index + 1) + "<br>";
+          legoSettingHTML += "Id=" + setting.id + "<br>";
+          legoSettingHTML += "Speed=" + setting.speed + "<br>";
+          legoSettingHTML += "Direction=" + (setting.direction === 1 ? 'Backward' : 'Forward') + "<br>";
+          legoSettingHTML += "PValue=" + setting.proportional + "<br>";
+          legoSettingHTML += "IValue=" + setting.integral + "<br>";
+          legoSettingHTML += "DValue=" + setting.derivative + "<br>";
+          legoSettingHTML += "Time=" + setting.time + "<br><br>";
+        });
+      }
+      document.getElementById("legoSetting").innerHTML = legoSettingHTML;
+    })
+    .catch(error => {
+      console.error('There was a problem with the fetch operation:', error);
+    });
+}
+
+function sendData(form){
+  var legoSetting = {
+    speed: form.speed.value,
+
+    proportional: form.proportional.value,
+    integral: form.integral.value,
+    derivative: form.derivative.value,
+    lego: {
+      id: form.legoid.value
+    }
+  };
+
+  fetch('/rest/lego/setvalues', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(legoSetting)
+  })
+  .then(response => {
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    return response.json();
+  })
+  .then(settings => {
+    // 更新显示更多设置信息
+    document.getElementById("settings").innerHTML = "Id=" + settings.id + "<br>Speed=" + settings.speed + 
+      "<br>Direction=" + settings.direction + "<br>PValue=" + settings.pValue + 
+      "<br>IValue=" + settings.iValue + "<br>DValue=" + settings.dValue + 
+      "<br>Time=" + settings.time;
+  })
+  .catch(error => {
+    console.error('There was a problem with the fetch operation:', error);
+  });
+}
+
+</script>
+<h1>Lego Settings!</h1>
+<h3>Lego</h3>
+<p id='lego'></p>
+<h3>Lego Settings</h3>
+<p id='legoSetting'></p>
+<h3>New values</h3>
+<form>
+  Id: <input id='legoid' type='text' name='legoid' value='' readonly><br>
+  Speed: <input type='text' name='speed' value=''><br>
+  Direction: <select name='direction'>
+    <option value='0'>Forward</option>
+    <option value='1'>Backward</option>
+  </select><br>
+  P: <input type='text' name='proportional' value=''><br>
+  I: <input type='text' name='integral' value=''><br>
+  D: <input type='text' name='derivative' value=''><br>
+  <input type='button' name='ok' value='OK' onclick='sendData(this.form);'>
+</form>
+<p id='settings'></p>
+</body>
+</html>
